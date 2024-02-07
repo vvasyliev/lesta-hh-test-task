@@ -1,45 +1,98 @@
 import { useQuery } from '@apollo/client';
-import { useMemo, useState } from 'react';
-import { Card, Loader, SimpleGrid, Image, Text, Group, Badge, Title, Pagination } from '@mantine/core';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  SimpleGrid,
+  Text,
+  Pagination,
+  Loader,
+  Center,
+  Container,
+  Grid,
+  RangeSlider,
+  Checkbox,
+  Select,
+  GridCol,
+} from '@mantine/core';
 
-import { GET_VEHICLES_QUERY, Vehicle } from '~/shared/api';
+import { VEHICLES_QUERY, Vehicle } from '~/api';
+import { VehicleCard } from '~/components/vehicle-card/VehicleCard';
 
 export function VehiclesPage() {
-  const { data, loading, error } = useQuery<{ vehicles: Vehicle[] }>(GET_VEHICLES_QUERY);
+  const [pageSize, setPageSize] = useState(9);
+  const [currentPage, setCurentPage] = useState(1);
+
+  const { data, loading, error } = useQuery<{ vehicles: Vehicle[] }>(VEHICLES_QUERY);
+
+  const totalPages = useMemo(() => (data ? data.vehicles.length / pageSize : 0), [data, pageSize]);
 
   console.info('data: ', loading, data);
 
-  const pageSize = 15;
-  const totalPages = useMemo(() => (data ? data.vehicles.length / pageSize : 0), [data]);
-  const [currentPage, setCurentPage] = useState(1);
+  const handlePageChange = useCallback((nextPage: number) => {
+    setCurentPage(nextPage);
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handlePageSizeChange = useCallback((newPageSize: string | null) => {
+    if (!newPageSize) return;
+    setPageSize(parseInt(newPageSize));
+  }, []);
+
+  if (loading) {
+    return (
+      <Center>
+        <Loader />
+      </Center>
+    );
+  }
 
   return (
-    <div>
-      {loading ? (
-        <Loader />
-      ) : data?.vehicles.length ? (
-        <SimpleGrid cols={3}>
-          {data.vehicles.slice(0, pageSize).map((vehicle) => (
-            <Card shadow="sm" withBorder key={`${vehicle.title}-${vehicle.level}`} ta="left">
-              <Card.Section>
-                <Image src={vehicle.icons.medium} alt={vehicle.title} />
-              </Card.Section>
-              <Group justify="space-between" my="md">
-                <Title order={3}>{vehicle.title}</Title>
-                <Badge variant="dot" color={vehicle.nation.color}>
-                  {vehicle.nation.title}
-                </Badge>
-              </Group>
-              <Text>Level: {vehicle.level}</Text>
-              <Text>{vehicle.description}</Text>
-            </Card>
-          ))}
-        </SimpleGrid>
-      ) : (
-        <span>Sorry no results</span>
-      )}
-      <Pagination withEdges total={totalPages} value={currentPage} onChange={setCurentPage} mt='lg' />
-    </div>
+    <Container fluid>
+      <Grid justify="space-between" align="center">
+        <GridCol span={8} offset={2}>
+          <Text>Warships found: {data?.vehicles.length}</Text>
+        </GridCol>
+        <GridCol span={2}>
+          <Select
+            label="Items per page"
+            defaultValue={pageSize.toString()}
+            data={['3', '6', '9', '15', '30', '60']}
+            onChange={handlePageSizeChange}
+          />
+        </GridCol>
+      </Grid>
+      <Grid>
+        <Grid.Col span={2}>
+          Nations:
+          <Checkbox label="Japan" variant="outline" />
+          Type:
+          <Checkbox label="Warship" />
+          Level:
+          <RangeSlider />
+        </Grid.Col>
+        <Grid.Col span={10}>
+          {data?.vehicles.length ? (
+            <SimpleGrid cols={{ md: 3, sm: 1 }}>
+              {data.vehicles.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((vehicle) => (
+                <VehicleCard
+                  key={`${vehicle.title}-${vehicle.level}`}
+                  title={vehicle.title}
+                  level={vehicle.level}
+                  description={vehicle.description}
+                  vehicleIconSrc={vehicle.icons.medium}
+                  vehicleNation={{
+                    title: vehicle.nation.title,
+                    color: vehicle.nation.color,
+                    iconSrc: vehicle.nation.icons.large,
+                  }}
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <span>Sorry no results</span>
+          )}
+          <Pagination withEdges total={totalPages} value={currentPage} onChange={handlePageChange} mt="lg" />
+        </Grid.Col>
+      </Grid>
+    </Container>
   );
 }
-
