@@ -35,38 +35,47 @@ export const VEHICLES_QUERY = gql`
 
 export const LEVEL_QUERY = gql`
   query GlossaryQuery {
-    vehicles {
-      level
-    }
+    levels
   }
 `;
 
 export const NATION_QUERY = gql`
-  query GlossaryQuery {
-    vehicles {
-      nation {
-        name
-        title
-        color
-        icons {
-          small
-          medium
-          large
-        }
+  query Nation {
+    nations {
+      name
+      title
+      icons {
+        default
       }
     }
   }
 `;
 
 export const TYPE_QUERY = gql`
-  query GlossaryQuery {
-    vehicles {
-      type {
+  query VehicleType {
+    vehicleTypes {
+      name
+      title
+      titleShort
+      icons {
+        default
+      }
+    }
+  }
+`;
+
+export const SCHEMA_QUERY = gql`
+  query SchemaQuery {
+    __schema {
+      types {
         name
-        title
-        icons {
-          default
+        fields {
+          name
+          description
         }
+      }
+      mutationType {
+        name
       }
     }
   }

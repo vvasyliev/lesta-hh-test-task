@@ -22,9 +22,11 @@ export const VehicleCard: FC<IVehicleCard> = ({ title, level, description, vehic
         </Title>
       </Center>
       <Card.Section>
-        <Image src={vehicleIconSrc} alt={title} />
+        <Image src={vehicleIconSrc} alt={title} fit="contain" />
       </Card.Section>
-      <Image my="md" src={vehicleNation.iconSrc} h="100" fit="contain" />
+      <Card.Section>
+        <Image my="md" src={vehicleNation.iconSrc} h="100" fit="contain" alt={vehicleNation.title} />
+      </Card.Section>
       <Group justify="space-between">
         <Badge variant="dot" color={vehicleNation.color} mt="xs" mb="sm">
           {vehicleNation.title}

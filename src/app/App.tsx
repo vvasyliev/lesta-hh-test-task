@@ -1,7 +1,7 @@
 import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { MantineProvider, createTheme } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 
 import { VehiclesPage } from '~/pages/vehicles';
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <RootPage />,
     children: [{
-      path: '/vehicles',
+      index: true,
       element: <VehiclesPage />
     }]
   },
