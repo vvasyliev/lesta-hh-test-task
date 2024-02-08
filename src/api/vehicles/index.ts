@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 // directives available: skip & include
-export const VEHICLES_QUERY = gql`
+export const vehiclesQuery = gql`
   query GlossaryQuery {
     vehicles {
       title
@@ -30,8 +30,8 @@ export const VEHICLES_QUERY = gql`
   }
 `;
 
-export const NATION_QUERY = gql`
-  query Nation {
+export const nationsQuery = gql`
+  query NationsQuery {
     nations {
       name
       title
@@ -42,8 +42,8 @@ export const NATION_QUERY = gql`
   }
 `;
 
-export const TYPE_QUERY = gql`
-  query VehicleType {
+export const vehicleTypesQuery = gql`
+  query VehicleTypesQuery {
     vehicleTypes {
       name
       title
@@ -55,7 +55,7 @@ export const TYPE_QUERY = gql`
   }
 `;
 
-export const SCHEMA_QUERY = gql`
+export const schemaQuery = gql`
   query SchemaQuery {
     __schema {
       types {

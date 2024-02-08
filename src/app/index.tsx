@@ -1,31 +1,17 @@
 import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 
-import { VehiclesPage } from '~/pages/vehicles';
-import { RootPage } from '~/pages/root';
+import { routes } from '~/routes';
 
 const client = new ApolloClient({
   uri: 'https://vortex.korabli.su/api/graphql/glossary/',
   cache: new InMemoryCache(),
 });
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootPage />,
-    children: [{
-      index: true,
-      element: <VehiclesPage />
-    }]
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" />,
-  },
-]);
+const router = createBrowserRouter(routes);
 
 function App() {
   return (

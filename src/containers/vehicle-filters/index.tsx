@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { RangeSlider, Stack, Title } from '@mantine/core';
 import { FC } from 'react';
 
-import { NATION_QUERY, Nation, TYPE_QUERY, VehicleType } from '~/api';
+import { nationsQuery, Nation, vehicleTypesQuery, VehicleType } from '~/api';
 import { ExpandableFilterGroup } from '~/components/expandable-filters';
 
 export interface IVehicleFilters {
@@ -22,24 +22,20 @@ export const VehicleFilters: FC<IVehicleFilters> = ({
   onNationFilterChange,
   onTypeFilterChange,
 }) => {
-  const { data: nationData } = useQuery(NATION_QUERY);
-  const { data: typeData } = useQuery(TYPE_QUERY);
+  const { data: nationData, loading: nationsLoading } = useQuery<{ nations: Nation[] }>(nationsQuery);
+  const { data: typeData, loading: typesLoading } = useQuery<{ vehicleTypes: VehicleType[] }>(vehicleTypesQuery);
 
   const nationFilters =
-    (nationData &&
-      nationData.nations.map((nation: Nation) => ({
-        label: nation.title,
-        value: nation.name,
-      }))) ||
-    [];
+    nationData?.nations.map((nation: Nation) => ({
+      label: nation.title,
+      value: nation.name,
+    })) || [];
 
   const vehicleTypeFilters =
-    (typeData &&
-      typeData.vehicleTypes.map((type: VehicleType) => ({
-        label: type.title,
-        value: type.name,
-      }))) ||
-    [];
+    typeData?.vehicleTypes.map((type: VehicleType) => ({
+      label: type.title,
+      value: type.name,
+    })) || [];
 
   return (
     <div>
@@ -48,12 +44,14 @@ export const VehicleFilters: FC<IVehicleFilters> = ({
         filterList={nationFilters}
         selectedFilters={selectedNations}
         onChange={onNationFilterChange}
+        isLoading={nationsLoading}
       />
       <ExpandableFilterGroup
         title="Type"
         filterList={vehicleTypeFilters}
         selectedFilters={selectedVehicleTypes}
         onChange={onTypeFilterChange}
+        isLoading={typesLoading}
       />
       <Stack>
         <Title order={6}>Level:</Title>
