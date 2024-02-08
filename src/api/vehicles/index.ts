@@ -23,8 +23,6 @@ export const VEHICLES_QUERY = gql`
         title
         color
         icons {
-          small
-          medium
           large
         }
       }

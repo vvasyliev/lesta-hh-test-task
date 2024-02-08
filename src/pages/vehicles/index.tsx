@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   SimpleGrid,
   Text,
@@ -24,11 +24,11 @@ export function VehiclesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [pageSize, setPageSize] = useState(parseInt(searchParams.get('pageSize')!) || DEFAULT_PAGE_SIZE);
   const [currentPage, setCurentPage] = useState(parseInt(searchParams.get('page')!) || 1);
-  const [levelRange, handleLevelFilter] = useState<[number, number]>([1, 11]);
-  const [selectedNations, handleNationFilter] = useState<string[]>([]);
-  const [selectedVehicleTypes, handleVehicleTypeFilter] = useState<string[]>([]);
+  const [levelRange, setLevelRange] = useState<[number, number]>([1, 11]);
+  const [selectedNations, setSelectedNations] = useState<string[]>([]);
+  const [selectedVehicleTypes, setSelectedVehicleTypes] = useState<string[]>([]);
 
-  const { data, loading, error } = useQuery<{ vehicles: Vehicle[] }>(VEHICLES_QUERY);
+  const { data, loading } = useQuery<{ vehicles: Vehicle[] }>(VEHICLES_QUERY);
   const filteredVehicles = useMemo(
     () =>
       data?.vehicles.filter(
@@ -38,12 +38,9 @@ export function VehiclesPage() {
           vehicle.level >= levelRange[0] &&
           vehicle.level <= levelRange[1],
       ) || [],
-    [selectedNations, selectedVehicleTypes, levelRange, data?.vehicles],
+    [selectedNations, selectedVehicleTypes, levelRange, data],
   );
-
   const totalPages = useMemo(() => Math.ceil(filteredVehicles.length / pageSize), [filteredVehicles, pageSize]);
-
-  console.info('data: ', loading, data, totalPages);
 
   const handlePageChange = useCallback(
     (nextPage: number) => {
@@ -62,10 +59,6 @@ export function VehiclesPage() {
     (newPageSize: string | null) => {
       if (!newPageSize) return;
 
-      if (currentPage !== 1) {
-        handlePageChange(1);
-      }
-
       setSearchParams((searchParams) => {
         searchParams.set('pageSize', newPageSize);
         return searchParams;
@@ -73,18 +66,16 @@ export function VehiclesPage() {
 
       setPageSize(parseInt(newPageSize));
     },
-    [currentPage, handlePageChange, setSearchParams],
-  );
-
-  const handleSortChange = useCallback(
-    (newSortByField: string) => {
-      setSearchParams((searchParams) => {
-        searchParams.set('sortBy', newSortByField);
-        return searchParams;
-      });
-    },
     [setSearchParams],
   );
+
+    useEffect(() => {
+    if (currentPage !== 1) {
+      handlePageChange(1);
+    }
+  // it's necessary to redirect user to page 1 only after filter changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [levelRange, selectedNations, selectedVehicleTypes]);
 
   if (loading) {
     return (
@@ -97,10 +88,10 @@ export function VehiclesPage() {
   return (
     <Container fluid>
       <Grid justify="space-between" align="center">
-        <GridCol span={8} offset={2}>
+        <GridCol span={8} offset={{ base: 0, sm: 2 }}>
           <Text>Warships found: {filteredVehicles.length}</Text>
         </GridCol>
-        <GridCol span={2}>
+        <GridCol span={{ base: 4, sm: 2 }}>
           <Select
             allowDeselect={false}
             label="Items per page"
@@ -111,17 +102,19 @@ export function VehiclesPage() {
         </GridCol>
       </Grid>
       <Grid>
-        <Grid.Col span={2}>
-          <VehicleFilters
-            levelRange={levelRange}
-            selectedNations={selectedNations}
-            selectedVehicleTypes={selectedVehicleTypes}
-            onLevelRangeChange={handleLevelFilter}
-            onNationFilterChange={handleNationFilter}
-            onTypeFilterChange={handleVehicleTypeFilter}
-          />
+        <Grid.Col span={{ base: 12, sm: 2 }} mb={{ base: 'sm', sm: 0 }}>
+          <Suspense fallback={<Loader />}>
+            <VehicleFilters
+              levelRange={levelRange}
+              selectedNations={selectedNations}
+              selectedVehicleTypes={selectedVehicleTypes}
+              onLevelRangeChange={setLevelRange}
+              onNationFilterChange={setSelectedNations}
+              onTypeFilterChange={setSelectedVehicleTypes}
+            />
+          </Suspense>
         </Grid.Col>
-        <Grid.Col span={10}>
+        <Grid.Col span={{ sm: 10, base: 12 }}>
           {filteredVehicles.length ? (
             <SimpleGrid cols={{ md: 3, sm: 1 }}>
               {filteredVehicles.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((vehicle) => (
@@ -145,7 +138,7 @@ export function VehiclesPage() {
             </SimpleGrid>
           ) : (
             <Blockquote color="red">
-              No vehicles matching selected filters have been found, try something else.
+              <Text>No vehicles matching selected filters have been found, try something else.</Text>
             </Blockquote>
           )}
           <Pagination withEdges total={totalPages} value={currentPage} onChange={handlePageChange} mt="lg" />

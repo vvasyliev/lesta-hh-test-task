@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { RangeSlider, Stack, Title } from '@mantine/core';
 import { FC } from 'react';
 
-import { NATION_QUERY, TYPE_QUERY } from '~/api';
+import { NATION_QUERY, Nation, TYPE_QUERY, VehicleType } from '~/api';
 import { ExpandableFilterGroup } from '~/components/expandable-filters';
 
 export interface IVehicleFilters {
@@ -25,10 +25,9 @@ export const VehicleFilters: FC<IVehicleFilters> = ({
   const { data: nationData } = useQuery(NATION_QUERY);
   const { data: typeData } = useQuery(TYPE_QUERY);
 
-  console.info(nationData, typeData);
   const nationFilters =
     (nationData &&
-      nationData.nations.map((nation) => ({
+      nationData.nations.map((nation: Nation) => ({
         label: nation.title,
         value: nation.name,
       }))) ||
@@ -36,7 +35,7 @@ export const VehicleFilters: FC<IVehicleFilters> = ({
 
   const vehicleTypeFilters =
     (typeData &&
-      typeData.vehicleTypes.map((type) => ({
+      typeData.vehicleTypes.map((type: VehicleType) => ({
         label: type.title,
         value: type.name,
       }))) ||
