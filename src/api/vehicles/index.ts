@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client';
 
 // directives available: skip & include
-
 export const VEHICLES_QUERY = gql`
   query GlossaryQuery {
     vehicles {
@@ -30,12 +29,6 @@ export const VEHICLES_QUERY = gql`
         }
       }
     }
-  }
-`;
-
-export const LEVEL_QUERY = gql`
-  query GlossaryQuery {
-    levels
   }
 `;
 
@@ -73,9 +66,6 @@ export const SCHEMA_QUERY = gql`
           name
           description
         }
-      }
-      mutationType {
-        name
       }
     }
   }

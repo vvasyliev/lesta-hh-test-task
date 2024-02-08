@@ -1,22 +1,11 @@
 import { useQuery } from '@apollo/client';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  SimpleGrid,
-  Text,
-  Pagination,
-  Loader,
-  Center,
-  Container,
-  Grid,
-  RangeSlider,
-  Checkbox,
-  Select,
-  GridCol,
-} from '@mantine/core';
+import { SimpleGrid, Text, Pagination, Loader, Center, Container, Grid, Select, GridCol } from '@mantine/core';
 
-import { NATION_QUERY, SCHEMA_QUERY, TYPE_QUERY, VEHICLES_QUERY, Vehicle } from '~/api';
-import { VehicleCard } from '~/components/vehicle-card/VehicleCard';
+import { VEHICLES_QUERY, Vehicle } from '~/api';
+import { VehicleCard } from '~/components/vehicle-card';
 import { useSearchParams } from 'react-router-dom';
+import { VehicleFilters } from '~/containers/vehicle-filters';
 
 const DEFAULT_PAGE_SIZE = 9;
 
@@ -28,12 +17,6 @@ export function VehiclesPage() {
   console.info('searchParams', searchParams);
   const { data, loading, error } = useQuery<{ vehicles: Vehicle[] }>(VEHICLES_QUERY);
 
-  const { data: nationData } = useQuery(NATION_QUERY);
-  const { data: typeData } = useQuery(TYPE_QUERY);
-  const { data: schemaData } = useQuery(SCHEMA_QUERY);
-
-
-  console.info('nationData', nationData, typeData, schemaData);
   const totalPages = useMemo(() => (data ? data.vehicles.length / pageSize : 0), [data, pageSize]);
 
   console.info('data: ', loading, data);
@@ -104,21 +87,7 @@ export function VehiclesPage() {
       </Grid>
       <Grid>
         <Grid.Col span={2}>
-          Nations:
-          <Checkbox label="Japan" variant="outline" />
-          Type:
-          <Checkbox label="Warship" />
-          Level:
-          <RangeSlider
-            minRange={0}
-            min={1}
-            max={11}
-            step={1}
-            marks={[
-              { value: 1, label: 1 },
-              { value: 11, label: 11 },
-            ]}
-          />
+          <VehicleFilters />
         </Grid.Col>
         <Grid.Col span={10}>
           {data?.vehicles.length ? (
