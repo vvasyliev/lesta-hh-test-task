@@ -1,15 +1,31 @@
 import { useQuery } from '@apollo/client';
 import { RangeSlider, Stack, Title } from '@mantine/core';
+import { FC } from 'react';
 
-import { NATION_QUERY, SCHEMA_QUERY, TYPE_QUERY } from '~/api';
+import { NATION_QUERY, TYPE_QUERY } from '~/api';
 import { ExpandableFilterGroup } from '~/components/expandable-filters';
 
-export const VehicleFilters = () => {
+export interface IVehicleFilters {
+  selectedNations: string[];
+  selectedVehicleTypes: string[];
+  levelRange: [number, number];
+  onLevelRangeChange: (levelRange: [number, number]) => void;
+  onNationFilterChange: (nationFilter: string[]) => void;
+  onTypeFilterChange: (vehicleType: string[]) => void;
+}
+
+export const VehicleFilters: FC<IVehicleFilters> = ({
+  levelRange,
+  selectedNations,
+  selectedVehicleTypes,
+  onLevelRangeChange,
+  onNationFilterChange,
+  onTypeFilterChange,
+}) => {
   const { data: nationData } = useQuery(NATION_QUERY);
   const { data: typeData } = useQuery(TYPE_QUERY);
-  const { data: schemaData } = useQuery(SCHEMA_QUERY);
 
-  console.info(nationData, typeData, schemaData);
+  console.info(nationData, typeData);
   const nationFilters =
     (nationData &&
       nationData.nations.map((nation) => ({
@@ -28,11 +44,23 @@ export const VehicleFilters = () => {
 
   return (
     <div>
-      <ExpandableFilterGroup title="Nations" filterList={nationFilters} />
-      <ExpandableFilterGroup title="Type" filterList={vehicleTypeFilters} />
+      <ExpandableFilterGroup
+        title="Nations"
+        filterList={nationFilters}
+        selectedFilters={selectedNations}
+        onChange={onNationFilterChange}
+      />
+      <ExpandableFilterGroup
+        title="Type"
+        filterList={vehicleTypeFilters}
+        selectedFilters={selectedVehicleTypes}
+        onChange={onTypeFilterChange}
+      />
       <Stack>
         <Title order={6}>Level:</Title>
         <RangeSlider
+          value={levelRange}
+          onChange={onLevelRangeChange}
           minRange={0}
           min={1}
           max={11}

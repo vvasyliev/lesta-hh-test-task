@@ -11,9 +11,20 @@ export interface IVehicleCard {
     color: string;
     iconSrc: string;
   };
+  vehicleType: {
+    title: string;
+    iconSrc: string;
+  };
 }
 
-export const VehicleCard: FC<IVehicleCard> = ({ title, level, description, vehicleIconSrc, vehicleNation }) => {
+export const VehicleCard: FC<IVehicleCard> = ({
+  title,
+  level,
+  description,
+  vehicleIconSrc,
+  vehicleNation,
+  vehicleType,
+}) => {
   return (
     <Card shadow="sm" withBorder key={`${title}-${level}`} ta="left">
       <Center>
@@ -25,11 +36,17 @@ export const VehicleCard: FC<IVehicleCard> = ({ title, level, description, vehic
         <Image src={vehicleIconSrc} alt={title} fit="contain" />
       </Card.Section>
       <Card.Section>
-        <Image my="md" src={vehicleNation.iconSrc} h="100" fit="contain" alt={vehicleNation.title} />
+        <Group justify='center'>
+          <Image my="md" src={vehicleNation.iconSrc} h="100" fit="contain" alt={vehicleNation.title} />
+          <Image my="md" src={vehicleType.iconSrc} h="100" fit="contain" alt={vehicleType.title} />
+        </Group>
       </Card.Section>
       <Group justify="space-between">
         <Badge variant="dot" color={vehicleNation.color} mt="xs" mb="sm">
           {vehicleNation.title}
+        </Badge>
+        <Badge variant="outline" color="dark" mt="xs" mb="sm">
+          {vehicleType.title}
         </Badge>
         <Badge>Level: {level}</Badge>
       </Group>

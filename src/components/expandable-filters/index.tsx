@@ -10,10 +10,18 @@ export type Filter = {
 export interface IExpandableFilterGroup {
   title: string;
   filterList: Filter[];
+  selectedFilters: string[];
+  onChange: (selectedFilters: string[]) => void;
   showAmount?: number;
 }
 
-export const ExpandableFilterGroup: FC<IExpandableFilterGroup> = ({ title, filterList, showAmount = 5 }) => {
+export const ExpandableFilterGroup: FC<IExpandableFilterGroup> = ({
+  title,
+  filterList,
+  selectedFilters,
+  onChange,
+  showAmount = 5,
+}) => {
   const [opened, { toggle }] = useDisclosure(false);
 
   const renderCheckbox = useCallback(
@@ -22,17 +30,21 @@ export const ExpandableFilterGroup: FC<IExpandableFilterGroup> = ({ title, filte
   );
 
   return (
-    <Stack mb='sm'>
+    <Stack mb="sm">
       <Title order={6}>{title}:</Title>
-      {filterList.slice(0, showAmount).map(renderCheckbox)}
-      <Collapse in={opened}>
+      <Checkbox.Group value={selectedFilters} onChange={onChange}>
         <SimpleGrid>
-          {filterList.slice(showAmount).map(renderCheckbox)}
+          {filterList.slice(0, showAmount).map(renderCheckbox)}
+          <Collapse in={opened}>
+            <SimpleGrid>{filterList.slice(showAmount).map(renderCheckbox)}</SimpleGrid>
+          </Collapse>
         </SimpleGrid>
-      </Collapse>
-      {showAmount < filterList.length && <Button variant="white" onClick={toggle}>
-        {opened ? 'Hide' : 'Show all'}
-      </Button>}
+      </Checkbox.Group>
+      {showAmount < filterList.length && (
+        <Button variant="white" onClick={toggle}>
+          {opened ? 'Hide' : 'Show all'}
+        </Button>
+      )}
     </Stack>
   );
 };
